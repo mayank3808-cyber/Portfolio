@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayank Gurliya — The Paper Portfolio (Vol. I: Silicon &amp; Embedded Gazette)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP Core & ScrollTrigger for Heavy Editorial Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Google Fonts matching Niccolò Miranda's Editorial Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Oswald:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --paper-bg: #C4BCB3;
+            --paper-light: #D1C9C0;
+            --paper-card: #B8B0A7;
+            --ink: #1C1C19;
+            --vermilion: #B43B12;
+            --grain-opacity: 0.35;
+        }
+
+        /* Lithograph Blueprint Dark Mode Theme Override */
+        body.blueprint-mode {
+            --paper-bg: #16181A;
+            --paper-light: #1F2326;
+            --paper-card: #121416;
+            --ink: #D8D2C9;
+            --vermilion: #E05324;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::selection {
+            background-color: var(--vermilion);
+            color: #C4BCB3;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #0E0E0C;
+            color: var(--ink);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Typography Classes */
+        .font-canopee {
+            font-family: 'Anton', 'Oswald', Impact, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 0.88;
+        }
+
+        .font-oswald {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+        }
+
+        .font-editorial {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        .font-mono-tech {
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Paper Unfold Stage */
+        #paper-stage {
+            background-color: var(--paper-bg);
+            color: var(--ink);
+            min-height: 100vh;
+            width: 100%;
+            transform-origin: center 50vh;
+            will-change: transform, box-shadow;
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.45s ease, color 0.45s ease;
+        }
+
+        /* Vintage Paper Grain & Halftone Texture Overlay */
+        #paper-grain-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9990;
+            opacity: var(--grain-opacity);
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.55'/%3E%3C/svg%3E");
+            transition: opacity 0.3s ease;
+        }
+
+        body.blueprint-mode #paper-grain-overlay {
+            mix-blend-mode: screen;
+            opacity: 0.14;
+        }
+
+        .paper-vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9989;
+            box-shadow: inset 0 0 130px rgba(20, 20, 18, 0.28);
+        }
+
+        /* Custom Dual-Ring Newspaper Cursor */
+        #cursor-dot, #cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, border-radius 0.25s ease;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--vermilion);
+            border-radius: 50%;
+        }
+
+        #cursor-ring {
+            width: 38px;
+            height: 38px;
+            border: 1.5px solid var(--ink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #cursor-ring.cursor-expanded {
+            width: 86px;
+            height: 86px;
+            background-color: var(--vermilion);
+            border-color: var(--ink);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        #cursor-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            color: #C4BCB3;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: center;
+            line-height: 1.1;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            padding: 2px;
+        }
+
+        #cursor-ring.cursor-expanded #cursor-label {
+            opacity: 1;
+        }
+
+        @media (pointer: coarse) {
+            #cursor-dot, #cursor-ring {
+                display: none !important;
+            }
+        }
+
+        /* Editorial Borders */
+        .ink-border { border: 1px solid var(--ink); }
+        .ink-border-2 { border: 2px solid var(--ink); }
+        .ink-border-b { border-bottom: 1px solid var(--ink); }
+        .ink-border-t { border-top: 1px solid var(--ink); }
+        .ink-border-r { border-right: 1px solid var(--ink); }
+        .ink-border-l { border-left: 1px solid var(--ink); }
+
+        /* Giant Masthead "MAYANK" with Interactive Letter Hover Wave */
+        .giant-masthead {
+            background-color: var(--ink);
+            color: var(--paper-bg);
+            font-size: 27.4vw;
+            line-height: 0.79;
+            letter-spacing: -0.03em;
+            text-align: center;
+            padding: 1.6vw 0 0.6vw 0;
+            user-select: none;
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .masthead-char {
+            display: inline-block;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+            cursor: pointer;
+        }
+
+        .masthead-char:hover {
+            transform: translateY(-1.8vw) scaleY(1.06) rotate(-2deg);
+            color: var(--vermilion);
+        }
+
+        /* Engraved Halftone Illustration Box */
+        .engraved-box {
+            background-color: var(--paper-card);
+            background-image: radial-gradient(var(--ink) 0.7px, transparent 0.7px);
+            background-size: 5px 5px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .engraved-box:hover {
+            background-color: var(--paper-light);
+        }
+
+        /* Dropcap styling */
+        .editorial-dropcap::first-letter {
+            float: left;
+            font-family: 'Anton', sans-serif;
+            font-size: 5.2rem;
+            line-height: 0.78;
+            padding: 0.6rem 0.85rem 0.4rem 0.85rem;
+            margin-right: 0.85rem;
+            margin-top: 0.15rem;
+            background-color: var(--ink);
+            color: var(--paper-bg);
+            border: 1px solid var(--ink);
+        }
+
+        /* 5-Card Miranda Overlapping Deck */
+        .miranda-deck {
+            display: flex;
+            position: relative;
+            width: 100%;
+            min-height: 460px;
+            padding: 1.5rem 0;
+        }
+
+        .miranda-card {
+            flex: 1;
+            background-color: var(--paper-bg);
+            border: 2px solid var(--ink);
+            border-radius: 10px;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.55s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.35s ease, box-shadow 0.4s ease;
+            box-shadow: -12px 12px 0px rgba(28, 28, 25, 0.18);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .miranda-card-inner {
+            border: 1.5px dashed var(--ink);
+            border-radius: 6px;
+            padding: 1.35rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 1100px) {
+            .miranda-card:not(:first-child) {
+                margin-left: -7.5rem;
+            }
+            .miranda-card:hover, .miranda-card.card-pinned {
+                transform: translateY(-22px) rotate(-1.5deg);
+                background-color: var(--paper-light);
+                box-shadow: -18px 24px 0px var(--ink);
+                z-index: 40;
+            }
+            .miranda-card:hover ~ .miranda-card, .miranda-card.card-pinned ~ .miranda-card {
+                transform: translateX(6.5rem);
+            }
+        }
+
+        @media (max-width: 1099px) {
+            .miranda-deck {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Infinite Marquee Banners */
+        .marquee-forward {
+            display: flex;
+            width: max-content;
+            animation: marqueeLeft 32s linear infinite;
+        }
+
+        .marquee-reverse {
+            display: flex;
+            width: max-content;
+            animation: marqueeRight 32s linear infinite;
+        }
+
+        .marquee-forward:hover, .marquee-reverse:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marqueeLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes marqueeRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Rotating Stamps & Gears */
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes spinReverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        .stamp-spin { animation: spinSlow 18s linear infinite; }
+        .stamp-spin-reverse { animation: spinReverse 14s linear infinite; }
+
+        /* Interactive Die Blocks */
+        .die-sector {
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .die-sector:hover, .die-sector.active-sector {
+            fill: var(--vermilion) !important;
+            fill-opacity: 0.32 !important;
+            stroke: var(--vermilion) !important;
+            stroke-width: 2.5px !important;
+        }
+
+        /* Ink Sweep Hover Row */
+        .ink-sweep-row {
+            position: relative;
+            overflow: hidden;
+            transition: color 0.35s ease;
+        }
+        .ink-sweep-row::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: var(--ink);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 0;
+        }
+        .ink-sweep-row:hover::before {
+            transform: scaleY(1);
+        }
+        .ink-sweep-row > * {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .ink-sweep-row:hover > * {
+            color: var(--paper-bg);
+        }
+
+        /* Telegraph Paper Receipt Animation */
+        @keyframes printReceipt {
+            0% { transform: translateY(-25px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .receipt-printed {
+            animation: printReceipt 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--paper-bg); border-left: 1px solid var(--ink); }
+        ::-webkit-scrollbar-thumb { background: var(--ink); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vermilion); }
+    </style>
+</head>
+<body>
+
+    <!-- ===================================================================== -->
+    <!-- 0. CUSTOM DUAL-RING NEWSPAPER FOLLOWER CURSOR                         -->
+    <!-- ===================================================================== -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"><span id="cursor-label">READ</span></div>
+
+    <!-- Fixed Paper Grain & Vignette Overlays -->
+    <div id="paper-grain-overlay" aria-hidden="true"></div>
+    <div class="paper-vignette" aria-hidden="true"></div>
+
+    <!-- ===================================================================== -->
+    <!-- 1. VINTAGE NEWSPAPER PRINTING PRESS & SILICON LITHOGRAPHY PRELOADER   -->
+    <!-- ===================================================================== -->
+    <div id="preloader-screen" class="fixed inset-0 bg-[#141412] text-[#C4BCB3] z-[9995] flex flex-col justify-between p-5 md:p-10 select-none overflow-hidden">
+        <!-- Preloader Top Header -->
+        <div class="flex flex-wrap justify-between items-center border-b border-[#C4BCB3]/25 pb-4 gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#B43B12] animate-ping"></span>
+                <span class="font-mono-tech text-xs tracking-widest uppercase">
+                    LITHOGRAPHIC PRESS &amp; WAFER STEPPER — JAIPUR EDITION
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="font-mono-tech text-xs text-[#C4BCB3]/70 hidden sm:inline">ARCHIVAL ISSUE: 03 AUG 2008 — 2026</span>
+                <button onclick="skipPreloaderNow()" class="font-mono-tech text-[11px] uppercase px-3 py-1 border border-[#C4BCB3]/40 hover:border-[#B43B12] hover:bg-[#B43B12] hover:text-[#141412] transition rounded-sm">
+                    SKIP PRESS [ESC] →
+                </button>
+            </div>
+        </div>
+
+        <!-- Preloader Centerpiece: Spinning Lithography Wafer + Giant Editorial Counter -->
+        <div class="my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-[1500px] mx-auto w-full py-6">
+            <!-- Left: Animated Lithography Press & Silicon Wafer Alignment Graphic -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center relative">
+                <div class="w-60 h-60 sm:w-72 sm:h-72 relative flex items-center justify-center">
+                    <!-- Outer Spinning Typography Stamp -->
+                    <svg viewBox="0 0 240 240" class="w-full h-full absolute inset-0 stamp-spin">
+                        <defs>
+                            <path id="preloaderCircle" d="M 120, 120 m -98, 0 a 98,98 0 1,1 196,0 a 98,98 0 1,1 -196,0" />
+                        </defs>
+                        <circle cx="120" cy="120" r="112" fill="none" stroke="#C4BCB3" stroke-width="1" stroke-dasharray="4 4" opacity="0.4" />
+                        <text class="font-mono-tech text-[9.5px] fill-[#C4BCB3] uppercase" letter-spacing="3.2">
+                            <textPath href="#preloaderCircle">MAYANK GURLIYA • BORN 03 AUG 2008 • JECRC UNIVERSITY ECE •</textPath>
+                        </text>
+                    </svg>
+
+                    <!-- Counter-Rotating Lithography Reticle Gear -->
+                    <svg viewBox="0 0 200 200" class="w-44 h-44 sm:w-52 sm:h-52 stamp-spin-reverse">
+                        <circle cx="100" cy="100" r="72" fill="none" stroke="#B43B12" stroke-width="2" />
+                        <circle cx="100" cy="100" r="56" fill="none" stroke="#C4BCB3" stroke-width="1" stroke-dasharray="6 4" />
+                        <!-- Alignment Crosshairs -->
+                        <line x1="100" y1="15" x2="100" y2="45" stroke="#B43B12" stroke-width="2.5" />
+                        <line x1="100" y1="155" x2="100" y2="185" stroke="#B43B12" stroke-width="2.5" />
+                        <line x1="15" y1="100" x2="45" y2="100" stroke="#B43B12" stroke-width="2.5" />
+                        <line x1="155" y1="100" x2="185" y2="100" stroke="#B43B12" stroke-width="2.5" />
+                        <!-- Silicon Wafer Grid Inside -->
+                        <rect x="68" y="68" width="64" height="64" fill="none" stroke="#C4BCB3" stroke-width="1.2" />
+                        <line x1="89" y1="68" x2="89" y2="132" stroke="#C4BCB3" stroke-width="0.8" />
+                        <line x1="111" y1="68" x2="111" y2="132" stroke="#C4BCB3" stroke-width="0.8" />
+                        <line x1="68" y1="89" x2="132" y2="89" stroke="#C4BCB3" stroke-width="0.8" />
+                        <line x1="68" y1="111" x2="132" y2="111" stroke="#C4BCB3" stroke-width="0.8" />
+                        <rect x="89" y="89" width="22" height="22" fill="#B43B12" />
+                    </svg>
+
+                    <!-- Center Core Label -->
+                    <div class="absolute font-mono-tech text-[10px] bg-[#141412] px-2 py-0.5 border border-[#B43B12] text-[#C4BCB3]">
+                        DIE_01
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Big Canopee Percentage Counter & Live Telegraph Ticker -->
+            <div class="lg:col-span-7 flex flex-col justify-center text-center lg:text-left">
+                <div class="inline-flex items-center justify-center lg:justify-start space-x-2 mb-2">
+                    <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2 py-0.5 uppercase rounded-sm">TABULA RASA EDITION</span>
+                    <span class="font-mono-tech text-xs text-[#C4BCB3]/80">SBS CONVENT → JECRC JAIPUR</span>
+                </div>
+
+                <!-- Dynamic Telegraph Status Message -->
+                <p id="preloader-ticker" class="font-mono-tech text-xs sm:text-sm text-[#B43B12] uppercase tracking-widest mb-2 min-h-[1.5rem]">
+                    &gt; INKING THE SILICON GAZETTE...
+                </p>
+
+                <!-- Giant Percentage Readout -->
+                <div class="flex items-baseline justify-center lg:justify-start gap-4">
+                    <span id="preloader-percent" class="font-canopee text-[7.5rem] sm:text-[11rem] md:text-[13rem] leading-[0.8] text-[#C4BCB3]">
+                        00%
+                    </span>
+                    <div class="hidden sm:block border-l border-[#C4BCB3]/30 pl-4 space-y-1">
+                        <p class="font-oswald text-xl uppercase text-[#C4BCB3]">MAYANK GURLIYA</p>
+                        <p class="font-editorial italic text-lg text-[#C4BCB3]/80">B.Tech ECE — Semiconductors,<br>Chip Design &amp; Embedded Systems</p>
+                    </div>
+                </div>
+
+                <!-- Lithographic Progress Bar -->
+                <div class="w-full bg-[#C4BCB3]/15 h-2.5 mt-6 overflow-hidden rounded-sm border border-[#C4BCB3]/30">
+                    <div id="preloader-bar" class="bg-[#B43B12] h-full w-0 transition-all duration-75"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preloader Bottom Dossier Bar -->
+        <div class="border-t border-[#C4BCB3]/25 pt-4 flex flex-wrap justify-between items-center gap-4 font-mono-tech text-[11px] text-[#C4BCB3]/70">
+            <span>CANDIDATE: MAYANK GURLIYA (DOB: 03.08.2008)</span>
+            <span>EXPERIENCE: DAY 01 / ZERO TO SILICON</span>
+            <span>PREPARING 360° PAPER UNFOLD...</span>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- FULLSCREEN NAVIGATION CURTAIN OVERLAY                                 -->
+    <!-- ===================================================================== -->
+    <div id="menu-curtain" class="fixed inset-0 bg-[#181815] text-[#C4BCB3] z-[9500] hidden flex-col justify-between p-6 md:p-12">
+        <div class="flex justify-between items-center border-b border-[#C4BCB3]/30 pb-5">
+            <div class="font-mono-tech text-xs tracking-widest uppercase">
+                MAYANK GURLIYA — ARCHIVE INDEX DIRECTORY (10 SECTIONS)
+            </div>
+            <button onclick="toggleMenu(false)" class="font-mono-tech text-xs uppercase px-4 py-2 border border-[#C4BCB3] hover:bg-[#B43B12] hover:border-[#B43B12] transition rounded-sm">
+                [ X ] CLOSE EDITION
+            </button>
+        </div>
+
+        <div class="my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-6">
+            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                <a href="#sec-masthead" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">01 / ABOVE THE FOLD</a>
+                <a href="#sec-cards" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">02 / 5-CARD DECK</a>
+                <a href="#sec-die-inspector" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">03 / DIE BLUEPRINT</a>
+                <a href="#sec-day-one" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">04 / OSCILLOSCOPE LAB</a>
+                <a href="#sec-roadmap" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">05 / 4-YEAR ROADMAP</a>
+                <a href="#sec-cabinet" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">06 / CURIOSITY CABINET</a>
+                <a href="#sec-dossier" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">07 / ACADEMIC DOSSIER</a>
+                <a href="#sec-telegraph" onclick="toggleMenu(false)" class="block font-canopee text-5xl sm:text-6xl hover:text-[#B43B12] transition-colors">08 / TELEGRAPH DISPATCH</a>
+            </div>
+
+            <div class="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[#C4BCB3]/30 pt-6 lg:pt-0 lg:pl-8 space-y-4">
+                <div>
+                    <p class="font-mono-tech text-xs text-[#B43B12] uppercase tracking-widest">Candidate Dossier</p>
+                    <p class="font-editorial text-2xl mt-1">Mayank Gurliya — Born 3 August 2008 (Age 18)</p>
+                </div>
+                <div>
+                    <p class="font-mono-tech text-xs text-[#B43B12] uppercase tracking-widest">Current University</p>
+                    <p class="font-editorial text-xl mt-1">JECRC University, Jaipur — B.Tech ECE (Semiconductors, Chip Design &amp; Embedded Systems)</p>
+                </div>
+                <div>
+                    <p class="font-mono-tech text-xs text-[#B43B12] uppercase tracking-widest">Higher Secondary</p>
+                    <p class="font-editorial text-xl mt-1">SBS Convent School (Class XII PCM Foundation)</p>
+                </div>
+                <div>
+                    <p class="font-mono-tech text-xs text-[#B43B12] uppercase tracking-widest">Experience Status</p>
+                    <p class="font-editorial text-xl italic mt-1">"Day 01 — No prior commercial experience. Just started learning and willing to go far away in this field."</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-[#C4BCB3]/30 pt-4 flex flex-wrap justify-between items-center gap-4 font-mono-tech text-xs">
+            <span>JAIPUR, RAJASTHAN — INDIA</span>
+            <span>NICCOLÒ MIRANDA PAPER PORTFOLIO HOMAGE</span>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MAIN UNFOLDING PAPER STAGE                                            -->
+    <!-- ===================================================================== -->
+    <div id="paper-stage">
+
+        <!-- ================================================================= -->
+        <!-- TOP UTILITY BAR & TELEGRAPH HEADER                                -->
+        <!-- ================================================================= -->
+        <header class="ink-border-b px-4 md:px-8 py-3.5 sticky top-0 bg-[var(--paper-bg)]/95 backdrop-blur-sm z-50 transition-colors">
+            <div class="max-w-[1650px] mx-auto flex flex-wrap items-center justify-between gap-3">
+                <!-- Left: Location, Birth Est & Live Clock -->
+                <div class="flex items-center space-x-3">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#B43B12] animate-pulse"></span>
+                    <div class="font-mono-tech text-[11px] md:text-xs tracking-tight uppercase">
+                        <span>JAIPUR, INDIA</span>
+                        <span class="mx-1.5 opacity-50">|</span>
+                        <span id="header-clock" class="font-bold text-[#B43B12]">--:--:-- IST</span>
+                        <span class="hidden xl:inline ml-1.5 opacity-75">(BORN 03 AUG 2008)</span>
+                    </div>
+                </div>
+
+                <!-- Center: Edition Title -->
+                <div class="hidden lg:block text-center">
+                    <span class="font-editorial italic text-xl font-semibold tracking-tight">
+                        The Tabula Rasa Gazette — Mayank Gurliya (JECRC University ECE)
+                    </span>
+                </div>
+
+                <!-- Right: Interactive Paper Grain Toggle, Blueprint Mode Toggle, Replay Unfold & Menu -->
+                <div class="flex items-center space-x-2 sm:space-x-2.5">
+                    <!-- Paper Grain Intensity Button -->
+                    <button onclick="cycleGrainIntensity()" data-cursor="TEXTURE" class="font-mono-tech text-[10px] md:text-[11px] uppercase px-2.5 py-1.5 ink-border hover:bg-[#1C1C19] hover:text-[#C4BCB3] transition rounded-sm hidden sm:inline-flex items-center gap-1" title="Toggle Vintage Paper Grain Intensity">
+                        <span>GRAIN:</span>
+                        <span id="grain-status-label" class="font-bold text-[#B43B12]">MED</span>
+                    </button>
+
+                    <!-- Lithograph Blueprint Contrast Toggle -->
+                    <button onclick="toggleBlueprintMode()" data-cursor="INK MODE" class="font-mono-tech text-[10px] md:text-[11px] uppercase px-2.5 py-1.5 ink-border hover:bg-[#1C1C19] hover:text-[#C4BCB3] transition rounded-sm" title="Switch between Aged Newsprint and Dark Lithograph Blueprint Mode">
+                        <span id="theme-mode-label">◐ BLUEPRINT MODE</span>
+                    </button>
+
+                    <!-- Replay Full Preloader + 360° Paper Unfold -->
+                    <button onclick="replayFullPressAndUnfold()" data-cursor="360° SPIN" class="font-mono-tech text-[10px] md:text-[11px] uppercase px-3 py-1.5 ink-border bg-[#B43B12] text-[#C4BCB3] border-[#B43B12] hover:bg-[#1C1C19] hover:border-[#1C1C19] transition flex items-center gap-1.5 rounded-sm font-bold">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span class="hidden md:inline">Replay Press &amp; 360° Unfold</span>
+                        <span class="md:hidden">360° Unfold</span>
+                    </button>
+
+                    <!-- Menu Index Trigger -->
+                    <button onclick="toggleMenu(true)" data-cursor="INDEX" class="p-2 ink-border hover:bg-[#1C1C19] hover:text-[#C4BCB3] transition rounded-sm" aria-label="Open Index Menu">
+                        <div class="w-5 h-0.5 bg-current mb-1"></div>
+                        <div class="w-5 h-0.5 bg-current"></div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 1: CLASSIC MIRANDA 3-COLUMN ABOVE-THE-FOLD SPREAD         -->
+        <!-- ================================================================= -->
+        <section id="sec-masthead" class="ink-border-b px-4 md:px-8 py-8">
+            <div class="max-w-[1650px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+
+                <!-- Left Column: "THE SILICON BEGINNER'S MANIFESTO" -->
+                <div class="lg:col-span-4 lg:ink-border-r lg:pr-8 flex flex-col justify-between group cursor-pointer" data-cursor="MANIFESTO" onclick="scrollToSection('sec-day-one')">
+                    <div>
+                        <div class="engraved-box ink-border h-52 w-full mb-4 p-4 flex items-center justify-center rounded-sm">
+                            <svg viewBox="0 0 340 170" class="w-full h-full stroke-current group-hover:scale-105 transition-transform duration-500" fill="none">
+                                <!-- Silicon Wafer & Lithography Stepper Illustration -->
+                                <circle cx="170" cy="85" r="70" stroke-width="2" fill="var(--paper-bg)" />
+                                <circle cx="170" cy="85" r="63" stroke-width="0.8" stroke-dasharray="3 3" />
+                                <!-- Grid Lines -->
+                                <line x1="122" y1="27" x2="122" y2="143" stroke-width="0.9" />
+                                <line x1="146" y1="17" x2="146" y2="153" stroke-width="0.9" />
+                                <line x1="170" y1="15" x2="170" y2="155" stroke-width="1.3" />
+                                <line x1="194" y1="17" x2="194" y2="153" stroke-width="0.9" />
+                                <line x1="218" y1="27" x2="218" y2="143" stroke-width="0.9" />
+                                <line x1="104" y1="53" x2="236" y2="53" stroke-width="0.9" />
+                                <line x1="100" y1="85" x2="240" y2="85" stroke-width="1.3" />
+                                <line x1="104" y1="117" x2="236" y2="117" stroke-width="0.9" />
+                                <!-- Active Dies -->
+                                <rect x="146" y="53" width="24" height="32" fill="#B43B12" />
+                                <rect x="170" y="85" width="24" height="32" fill="currentColor" />
+                                <!-- Callout Lines -->
+                                <polyline points="158,53 85,25 18,25" stroke="#B43B12" stroke-width="1.5" />
+                                <text x="18" y="19" class="font-mono-tech text-[9px] fill-[#B43B12]" stroke="none">VLSI &amp; CHIP DESIGN</text>
+                                <polyline points="194,101 255,138 322,138" stroke="currentColor" stroke-width="1.2" />
+                                <text x="232" y="132" class="font-mono-tech text-[8.5px] fill-current" stroke="none">DAY 01 ARCHITECT</text>
+                            </svg>
+                            <span class="absolute bottom-2 right-2 font-mono-tech text-[10px] bg-[#1C1C19] text-[#C4BCB3] px-2 py-0.5">FIG 1.1 — WAFER DIE</span>
+                        </div>
+
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="font-oswald text-2xl tracking-tight font-bold">THE SILICON BEGINNER'S MANIFESTO</h2>
+                            <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase">DAY 01</span>
+                        </div>
+                    </div>
+                    <p class="font-editorial text-lg md:text-xl leading-snug opacity-95">
+                        Starting with <strong>zero prior industry experience</strong> is not a limitation — it is a clean slate. Having just started learning, Mayank Gurliya is willing to go far away in <strong>Semiconductors, VLSI Chip Design, and Embedded Systems</strong>.
+                    </p>
+                </div>
+
+                <!-- Center Column: "THE CHRONICLE OF MAYANK GURLIYA" -->
+                <div class="lg:col-span-4 lg:ink-border-r lg:px-8 flex flex-col justify-between text-center py-4 lg:py-0">
+                    <div>
+                        <div class="inline-flex items-center gap-2 font-mono-tech text-xs uppercase tracking-widest text-[#B43B12] mb-1">
+                            <span>★ SPECIAL BIOGRAPHICAL EDITION ★</span>
+                        </div>
+                        <h1 class="font-canopee text-6xl sm:text-7xl mt-1 mb-3 tracking-tight">
+                            ALL WORK!<br>
+                            <span class="text-4xl sm:text-5xl">THE CHRONICLE OF MAYANK</span>
+                        </h1>
+                        <p class="font-editorial text-2xl md:text-[26px] leading-tight max-w-md mx-auto">
+                            Born <strong>3 August 2008</strong> • Higher Secondary from <strong>SBS Convent School</strong> • Currently pursuing <strong>B.Tech ECE</strong> at <strong>JECRC University, Jaipur</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Quick Vitals Pill Row -->
+                    <div class="grid grid-cols-3 gap-2 my-5 pt-4 ink-border-t font-mono-tech text-[10px] uppercase">
+                        <div class="ink-border p-2 rounded-sm bg-[var(--paper-card)]/40">
+                            <span class="block text-[#B43B12] font-bold">03.08.2008</span>
+                            <span>BIRTH DATE</span>
+                        </div>
+                        <div class="ink-border p-2 rounded-sm bg-[var(--paper-card)]/40">
+                            <span class="block text-[#B43B12] font-bold">SBS CONVENT</span>
+                            <span>10+2 SCHOOL</span>
+                        </div>
+                        <div class="ink-border p-2 rounded-sm bg-[var(--paper-card)]/40">
+                            <span class="block text-[#B43B12] font-bold">JECRC UNIV</span>
+                            <span>ECE JAIPUR</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 ink-border-t">
+                        <p class="font-mono-tech text-xs uppercase">
+                            <strong class="bg-[#1C1C19] text-[#C4BCB3] px-1.5 py-0.5 mr-1">TIP!</strong> Hover the giant letters below or toggle live switches in the Lab Logbook →
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column: "EMBEDDED & VLSI LAB LOGBOOK #001" (Interactive Toggle Switches) -->
+                <div class="lg:col-span-4 lg:pl-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between ink-border-b pb-2 mb-3">
+                            <div>
+                                <span class="font-mono-tech text-[10px] uppercase text-[#B43B12] block">INTERACTIVE HARDWARE BENCH</span>
+                                <h2 class="font-oswald text-2xl tracking-tight font-bold">EMBEDDED &amp; VLSI LAB LOGBOOK #001</h2>
+                            </div>
+                            <span class="bg-[#1C1C19] text-[#C4BCB3] font-mono-tech text-[10px] px-2 py-1 rounded-sm">LIVE BENCH</span>
+                        </div>
+
+                        <p class="font-editorial text-lg leading-snug mb-3">
+                            Toggle the DIP switches on Mayank's student breadboard below to inspect his active learning tracks at <strong>JECRC University, Jaipur</strong>:
+                        </p>
+
+                        <!-- Interactive DIP Switch Panel -->
+                        <div class="ink-border bg-[var(--paper-card)]/50 p-3.5 rounded-sm space-y-2.5 font-mono-tech text-xs">
+                            <div class="flex items-center justify-between p-2 ink-border bg-[var(--paper-bg)] rounded-sm cursor-pointer hover:border-[#B43B12] transition" onclick="toggleLabSwitch(0)" data-cursor="TOGGLE">
+                                <div class="flex items-center space-x-2.5">
+                                    <span id="led-0" class="w-3 h-3 rounded-full bg-[#B43B12] shadow-[0_0_8px_#B43B12] transition"></span>
+                                    <span class="font-bold">SW_01: SEMICONDUCTOR PHYSICS</span>
+                                </div>
+                                <span id="sw-label-0" class="bg-[#B43B12] text-[#C4BCB3] px-2 py-0.5 text-[10px] rounded-sm">ACTIVE [1]</span>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2 ink-border bg-[var(--paper-bg)] rounded-sm cursor-pointer hover:border-[#B43B12] transition" onclick="toggleLabSwitch(1)" data-cursor="TOGGLE">
+                                <div class="flex items-center space-x-2.5">
+                                    <span id="led-1" class="w-3 h-3 rounded-full bg-[#B43B12] shadow-[0_0_8px_#B43B12] transition"></span>
+                                    <span class="font-bold">SW_02: DIGITAL LOGIC &amp; RTL</span>
+                                </div>
+                                <span id="sw-label-1" class="bg-[#B43B12] text-[#C4BCB3] px-2 py-0.5 text-[10px] rounded-sm">ACTIVE [1]</span>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2 ink-border bg-[var(--paper-bg)] rounded-sm cursor-pointer hover:border-[#B43B12] transition" onclick="toggleLabSwitch(2)" data-cursor="TOGGLE">
+                                <div class="flex items-center space-x-2.5">
+                                    <span id="led-2" class="w-3 h-3 rounded-full bg-[#B43B12] shadow-[0_0_8px_#B43B12] transition"></span>
+                                    <span class="font-bold">SW_03: EMBEDDED C &amp; MCU I/O</span>
+                                </div>
+                                <span id="sw-label-2" class="bg-[#B43B12] text-[#C4BCB3] px-2 py-0.5 text-[10px] rounded-sm">ACTIVE [1]</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-2 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                        <span id="lab-binary-readout">BUS STATE: 0b111 (ALL SYSTEMS GO)</span>
+                        <span class="text-[#B43B12] font-bold">JECRC ECE</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- GIANT EDGE-TO-EDGE STRETCHED "MAYANK" BANNER                      -->
+        <!-- ================================================================= -->
+        <section class="px-2 md:px-6 py-4 md:py-6 ink-border-b relative">
+            <div class="max-w-[1650px] mx-auto relative">
+                <div class="giant-masthead font-canopee rounded-sm shadow-inner" data-cursor="WAVE">
+                    <span class="masthead-char">M</span>
+                    <span class="masthead-char">A</span>
+                    <span class="masthead-char">Y</span>
+                    <span class="masthead-char">A</span>
+                    <span class="masthead-char">N</span>
+                    <span class="masthead-char">K</span>
+                </div>
+
+                <!-- Floating Rotating Circular Editorial Stamp Badge -->
+                <div class="hidden md:flex absolute -bottom-7 right-10 w-28 h-28 bg-[#B43B12] text-[#C4BCB3] rounded-full items-center justify-center p-2 border-2 border-[#1C1C19] shadow-xl z-20 pointer-events-none">
+                    <svg viewBox="0 0 100 100" class="w-full h-full stamp-spin">
+                        <path id="stampPath1" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                        <text class="font-mono-tech text-[8.8px] fill-[#C4BCB3] uppercase font-bold" letter-spacing="2">
+                            <textPath href="#stampPath1">EST. AUG 3, 2008 • JAIPUR EDITION •</textPath>
+                        </text>
+                    </svg>
+                    <span class="absolute font-canopee text-xl text-[#1C1C19]">2008</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 2: SIGNATURE MIRANDA 5-CARD OVERLAPPING PAPER DECK        -->
+        <!-- ================================================================= -->
+        <section id="sec-cards" class="ink-border-b px-4 md:px-8 py-14 md:py-20 overflow-hidden gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto">
+                <div class="flex flex-wrap items-end justify-between mb-10 gap-4 ink-border-b pb-5">
+                    <div>
+                        <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-xs px-2.5 py-1 uppercase rounded-sm font-bold">SIGNATURE MIRANDA STACKED DECK</span>
+                        <h2 class="font-canopee text-5xl sm:text-7xl mt-3">THE 5 ARCHIVE INDEX CARDS</h2>
+                    </div>
+                    <div class="max-w-md">
+                        <p class="font-editorial italic text-2xl leading-snug">
+                            Hover or click any vintage index card below to fan out the stack and inspect Mayank Gurliya's story from <strong>3 August 2008</strong> to <strong>JECRC University</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 5 Overlapping Cards Deck -->
+                <div class="miranda-deck">
+
+                    <!-- Card 01: Origin Story (03.08.2008) -->
+                    <div class="miranda-card" data-cursor="CARD 01" onclick="pinCard(this)">
+                        <div class="miranda-card-inner">
+                            <div>
+                                <div class="flex justify-between items-center ink-border-b pb-3 mb-4">
+                                    <span class="font-mono-tech text-xs font-bold">INDEX 01 / 05</span>
+                                    <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase">2008</span>
+                                </div>
+                                <h3 class="font-canopee text-4xl xl:text-5xl mb-3">ORIGIN STORY (03.08.2008)</h3>
+                                <p class="font-editorial text-xl leading-relaxed">
+                                    Born on <strong>3rd August 2008</strong>, Mayank grew up in an era defined by pocket supercomputers. Instead of merely using apps, he wanted to know how silicon crystals execute billions of instructions per second.
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                                <span>GEN-Z ARCHITECT</span>
+                                <span class="text-[#B43B12] font-bold">AGE: 18 YRS</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 02: The Alma Mater (SBS Convent School) -->
+                    <div class="miranda-card" data-cursor="CARD 02" onclick="pinCard(this)">
+                        <div class="miranda-card-inner">
+                            <div>
+                                <div class="flex justify-between items-center ink-border-b pb-3 mb-4">
+                                    <span class="font-mono-tech text-xs font-bold">INDEX 02 / 05</span>
+                                    <span class="bg-[#1C1C19] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase">ARCHIVE</span>
+                                </div>
+                                <h3 class="font-canopee text-4xl xl:text-5xl mb-3">ALMA MATER: SBS CONVENT SCHOOL</h3>
+                                <p class="font-editorial text-xl leading-relaxed">
+                                    Completed Higher Secondary (Class XII) qualification from <strong>SBS Convent School</strong>. Built a disciplined foundation in Electricity &amp; Magnetism, Semiconductor chapters, Differential Calculus, and Boolean truth tables.
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                                <span>10+2 QUALIFICATION</span>
+                                <span class="text-[#B43B12] font-bold">PCM BEDROCK</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 03: The University Arena (JECRC University, Jaipur) -->
+                    <div class="miranda-card" data-cursor="CARD 03" onclick="pinCard(this)">
+                        <div class="miranda-card-inner">
+                            <div>
+                                <div class="flex justify-between items-center ink-border-b pb-3 mb-4">
+                                    <span class="font-mono-tech text-xs font-bold">INDEX 03 / 05</span>
+                                    <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase">JECRC</span>
+                                </div>
+                                <h3 class="font-canopee text-4xl xl:text-5xl mb-3">JECRC UNIVERSITY, JAIPUR</h3>
+                                <p class="font-editorial text-xl leading-relaxed">
+                                    Currently enrolled at <strong>JECRC University, Jaipur</strong> pursuing <strong>B.Tech in Electronics &amp; Communication Engineering (ECE)</strong> — turning classroom theory into real hardware schematics and lab waveforms.
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                                <span>JAIPUR, RAJASTHAN</span>
+                                <span class="text-[#B43B12] font-bold">B.TECH ECE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 04: Focus Pillar I: Semiconductor & Chip Design -->
+                    <div class="miranda-card" data-cursor="CARD 04" onclick="pinCard(this)">
+                        <div class="miranda-card-inner">
+                            <div>
+                                <div class="flex justify-between items-center ink-border-b pb-3 mb-4">
+                                    <span class="font-mono-tech text-xs font-bold">INDEX 04 / 05</span>
+                                    <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase">NEW</span>
+                                </div>
+                                <h3 class="font-canopee text-4xl xl:text-5xl mb-3">SEMICONDUCTOR &amp; CHIP DESIGN</h3>
+                                <p class="font-editorial text-xl leading-relaxed">
+                                    Dedicated to understanding MOSFET physics, CMOS logic gates, Verilog/VHDL hardware description languages, RTL synthesis, and how nanometer transceivers and processors are etched onto silicon.
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                                <span>VLSI / RTL / ASIC</span>
+                                <span class="text-[#B43B12] font-bold">PILLAR I</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 05: Focus Pillar II: Embedded Systems -->
+                    <div class="miranda-card" data-cursor="CARD 05" onclick="pinCard(this)">
+                        <div class="miranda-card-inner">
+                            <div>
+                                <div class="flex justify-between items-center ink-border-b pb-3 mb-4">
+                                    <span class="font-mono-tech text-xs font-bold">INDEX 05 / 05</span>
+                                    <span class="bg-[#1C1C19] text-[#C4BCB3] font-mono-tech text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase">CORE</span>
+                                </div>
+                                <h3 class="font-canopee text-4xl xl:text-5xl mb-3">EMBEDDED SYSTEMS &amp; BARE-METAL</h3>
+                                <p class="font-editorial text-xl leading-relaxed">
+                                    Writing low-level C/C++ close to the metal — programming microcontrollers, configuring memory-mapped registers, timers, interrupts, and hardware buses (UART, SPI, I2C) from scratch.
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 ink-border-t flex items-center justify-between font-mono-tech text-[11px]">
+                                <span>MCU / RTOS / FIRMWARE</span>
+                                <span class="text-[#B43B12] font-bold">PILLAR II</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 3: INTERACTIVE SILICON DIE & WAFER BLUEPRINT INSPECTOR    -->
+        <!-- ================================================================= -->
+        <section id="sec-die-inspector" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto">
+                <div class="flex flex-wrap items-end justify-between ink-border-b pb-5 mb-10 gap-4">
+                    <div>
+                        <span class="font-mono-tech text-xs uppercase text-[#B43B12] tracking-widest">PATENT BLUEPRINT FIG. 3.0 // INTERACTIVE DIE MAP</span>
+                        <h2 class="font-canopee text-5xl sm:text-7xl mt-1">SILICON DIE &amp; PINOUT INSPECTOR</h2>
+                    </div>
+                    <p class="font-mono-tech text-xs bg-[#1C1C19] text-[#C4BCB3] px-3 py-1.5 rounded-sm uppercase">
+                        ● CLICK ANY OF THE 6 SILICON BLOCKS TO PROBE MAYANK'S LEARNING METRICS
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                    <!-- Left 7 Cols: Interactive 6-Block SVG Silicon Floorplan -->
+                    <div class="lg:col-span-7 engraved-box ink-border-2 p-4 md:p-6 rounded-sm">
+                        <div class="flex justify-between items-center font-mono-tech text-[11px] mb-3 pb-2 ink-border-b">
+                            <span>CHIP ID: MG-2008-JECRC-SOC</span>
+                            <span class="text-[#B43B12] font-bold">PROCESS: LEARNING NODE v1.0</span>
+                        </div>
+
+                        <svg viewBox="0 0 600 420" class="w-full h-auto select-none">
+                            <!-- Outer Package Pins (Top, Bottom, Left, Right) -->
+                            <g stroke="currentColor" stroke-width="2">
+                                <!-- Top Pins -->
+                                <line x1="90" y1="6" x2="90" y2="24"/><line x1="140" y1="6" x2="140" y2="24"/><line x1="190" y1="6" x2="190" y2="24"/><line x1="240" y1="6" x2="240" y2="24"/><line x1="290" y1="6" x2="290" y2="24"/><line x1="340" y1="6" x2="340" y2="24"/><line x1="390" y1="6" x2="390" y2="24"/><line x1="440" y1="6" x2="440" y2="24"/><line x1="490" y1="6" x2="490" y2="24"/>
+                                <!-- Bottom Pins -->
+                                <line x1="90" y1="396" x2="90" y2="414"/><line x1="140" y1="396" x2="140" y2="414"/><line x1="190" y1="396" x2="190" y2="414"/><line x1="240" y1="396" x2="240" y2="414"/><line x1="290" y1="396" x2="290" y2="414"/><line x1="340" y1="396" x2="340" y2="414"/><line x1="390" y1="396" x2="390" y2="414"/><line x1="440" y1="396" x2="440" y2="414"/><line x1="490" y1="396" x2="490" y2="414"/>
+                                <!-- Left Pins -->
+                                <line x1="6" y1="75" x2="24" y2="75"/><line x1="6" y1="135" x2="24" y2="135"/><line x1="6" y1="195" x2="24" y2="195"/><line x1="6" y1="255" x2="24" y2="255"/><line x1="6" y1="315" x2="24" y2="315"/>
+                                <!-- Right Pins -->
+                                <line x1="576" y1="75" x2="594" y2="75"/><line x1="576" y1="135" x2="594" y2="135"/><line x1="576" y1="195" x2="594" y2="195"/><line x1="576" y1="255" x2="594" y2="255"/><line x1="576" y1="315" x2="594" y2="315"/>
+                            </g>
+
+                            <!-- Main Silicon Die Frame -->
+                            <rect x="24" y="24" width="552" height="372" fill="var(--paper-bg)" stroke="currentColor" stroke-width="3" />
+                            <rect x="34" y="34" width="532" height="352" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 3" />
+
+                            <!-- SECTOR 1: ALU & Digital Logic Core -->
+                            <g class="die-sector active-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(0, this)" fill="#B43B12" fill-opacity="0.32" stroke="#B43B12" stroke-width="2.5">
+                                <rect x="46" y="46" width="165" height="155" />
+                                <text x="58" y="74" class="font-canopee text-2xl fill-current" stroke="none">01. ALU &amp; LOGIC CORE</text>
+                                <text x="58" y="92" class="font-mono-tech text-[10px] fill-current" stroke="none">BOOLEAN / ADDERS / MUX</text>
+                                <path d="M70 115 H110 L125 140 L110 165 H70 L85 140 Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+                                <line x1="125" y1="140" x2="185" y2="140" stroke="currentColor" stroke-width="1.8" />
+                            </g>
+
+                            <!-- SECTOR 2: SRAM & CMOS Transistor Array -->
+                            <g class="die-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(1, this)" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.5">
+                                <rect x="223" y="46" width="165" height="155" />
+                                <text x="235" y="74" class="font-canopee text-2xl fill-current" stroke="none">02. CMOS &amp; SRAM</text>
+                                <text x="235" y="92" class="font-mono-tech text-[10px] fill-current" stroke="none">MOSFET / 6T CELL / LATCH</text>
+                                <!-- Grid matrix -->
+                                <rect x="238" y="108" width="135" height="75" fill="none" stroke="currentColor" stroke-width="1.2" />
+                                <line x1="272" y1="108" x2="272" y2="183" stroke="currentColor" stroke-width="0.9" />
+                                <line x1="306" y1="108" x2="306" y2="183" stroke="currentColor" stroke-width="0.9" />
+                                <line x1="340" y1="108" x2="340" y2="183" stroke="currentColor" stroke-width="0.9" />
+                                <line x1="238" y1="133" x2="373" y2="133" stroke="currentColor" stroke-width="0.9" />
+                                <line x1="238" y1="158" x2="373" y2="158" stroke="currentColor" stroke-width="0.9" />
+                            </g>
+
+                            <!-- SECTOR 3: SBS Convent Foundation ROM -->
+                            <g class="die-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(2, this)" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.5">
+                                <rect x="400" y="46" width="154" height="155" />
+                                <text x="412" y="74" class="font-canopee text-2xl fill-current" stroke="none">03. SBS FOUNDATION</text>
+                                <text x="412" y="92" class="font-mono-tech text-[10px] fill-current" stroke="none">CLASS XII PCM BOOT ROM</text>
+                                <circle cx="477" cy="142" r="32" fill="none" stroke="currentColor" stroke-width="1.5" />
+                                <text x="477" y="146" text-anchor="middle" class="font-mono-tech text-[11px] fill-current" stroke="none">10+2 PCM</text>
+                            </g>
+
+                            <!-- SECTOR 4: Embedded GPIO / SPI / I2C / UART Matrix -->
+                            <g class="die-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(3, this)" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.5">
+                                <rect x="46" y="213" width="195" height="161" />
+                                <text x="58" y="242" class="font-canopee text-2xl fill-current" stroke="none">04. EMBEDDED BUS MATRIX</text>
+                                <text x="58" y="260" class="font-mono-tech text-[10px] fill-current" stroke="none">UART / SPI / I2C / GPIO PWM</text>
+                                <polyline points="58,330 85,330 85,295 115,295 115,330 145,330 145,295 175,295 175,330 205,330 205,295 225,295" fill="none" stroke="#B43B12" stroke-width="2.2" />
+                            </g>
+
+                            <!-- SECTOR 5: Clock Tree & Verilog RTL Synthesizer -->
+                            <g class="die-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(4, this)" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.5">
+                                <rect x="253" y="213" width="140" height="161" />
+                                <text x="265" y="242" class="font-canopee text-2xl fill-current" stroke="none">05. CLOCK &amp; RTL</text>
+                                <text x="265" y="260" class="font-mono-tech text-[10px] fill-current" stroke="none">VERILOG / HDL TIMING</text>
+                                <!-- H-Tree Clock Graphic -->
+                                <line x1="285" y1="295" x2="285" y2="345" stroke="currentColor" stroke-width="2" />
+                                <line x1="360" y1="295" x2="360" y2="345" stroke="currentColor" stroke-width="2" />
+                                <line x1="285" y1="320" x2="360" y2="320" stroke="#B43B12" stroke-width="2" />
+                                <circle cx="322" cy="320" r="5" fill="#B43B12" />
+                            </g>
+
+                            <!-- SECTOR 6: JECRC University R&D Core -->
+                            <g class="die-sector" data-cursor="INSPECT DIE" onclick="selectDieSector(5, this)" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1.5">
+                                <rect x="405" y="213" width="149" height="161" />
+                                <text x="417" y="242" class="font-canopee text-2xl fill-current" stroke="none">06. JECRC ECE CORE</text>
+                                <text x="417" y="260" class="font-mono-tech text-[10px] fill-current" stroke="none">JAIPUR LAB ENGINE</text>
+                                <rect x="430" y="282" width="100" height="65" fill="none" stroke="#B43B12" stroke-width="1.8" />
+                                <text x="480" y="319" text-anchor="middle" class="font-canopee text-lg fill-current" stroke="none">B.TECH ECE</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Right 5 Cols: Live Telemetry & Diagnostic Readout -->
+                    <div class="lg:col-span-5 ink-border-2 bg-[var(--paper-light)] p-6 md:p-8 rounded-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between ink-border-b pb-3 mb-5">
+                                <span id="sector-code" class="font-mono-tech text-xs text-[#B43B12] font-bold uppercase">SECTOR_01 // ALU_LOGIC_CORE</span>
+                                <span id="sector-badge" class="bg-[#1C1C19] text-[#C4BCB3] font-mono-tech text-[10px] px-2.5 py-0.5 rounded-sm uppercase">ACTIVE STUDY</span>
+                            </div>
+
+                            <h3 id="sector-title" class="font-canopee text-5xl md:text-6xl leading-none mb-4">
+                                ALU &amp; COMBINATIONAL LOGIC GATES
+                            </h3>
+
+                            <p id="sector-desc" class="font-editorial text-2xl leading-relaxed mb-6">
+                                Starting from truth tables, De Morgan's theorems, and Karnaugh maps to designing half-adders, full-adders, multiplexers, and multi-bit Arithmetic Logic Units (ALUs).
+                            </p>
+
+                            <!-- Progress & Curiosity Bars -->
+                            <div class="space-y-4 ink-border-t pt-5 font-mono-tech text-xs">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>THEORETICAL FOUNDATION</span>
+                                        <span id="sector-metric-1" class="font-bold text-[#B43B12]">75% (BUILDING FAST)</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-[var(--paper-card)] ink-border overflow-hidden">
+                                        <div id="sector-bar-1" class="h-full bg-[#1C1C19] transition-all duration-500" style="width: 75%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>AMBITION &amp; LONG-HORIZON DRIVE</span>
+                                        <span class="font-bold text-[#B43B12]">100% (UNLIMITED)</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-[var(--paper-card)] ink-border overflow-hidden">
+                                        <div class="h-full bg-[#B43B12]" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Sector Selector Pills -->
+                        <div class="mt-8 pt-4 ink-border-t">
+                            <span class="font-mono-tech text-[10px] uppercase block mb-2 opacity-75">QUICK JUMP DIE SECTORS:</span>
+                            <div class="grid grid-cols-3 gap-2 font-mono-tech text-[10px]">
+                                <button onclick="selectDieSector(0, document.querySelectorAll('.die-sector')[0])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">01. ALU Core</button>
+                                <button onclick="selectDieSector(1, document.querySelectorAll('.die-sector')[1])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">02. CMOS SRAM</button>
+                                <button onclick="selectDieSector(2, document.querySelectorAll('.die-sector')[2])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">03. SBS School</button>
+                                <button onclick="selectDieSector(3, document.querySelectorAll('.die-sector')[3])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">04. Embedded</button>
+                                <button onclick="selectDieSector(4, document.querySelectorAll('.die-sector')[4])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">05. Clock RTL</button>
+                                <button onclick="selectDieSector(5, document.querySelectorAll('.die-sector')[5])" class="ink-border py-1.5 px-2 hover:bg-[#B43B12] hover:text-[#C4BCB3] transition uppercase rounded-sm">06. JECRC ECE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 4: EDITORIAL SPLIT FEATURE ("NO EXPERIENCE? NO PROBLEM")  -->
+        <!-- + INTERACTIVE OSCILLOSCOPE & TRANSISTOR WAVEFORM SIMULATOR        -->
+        <!-- ================================================================= -->
+        <section id="sec-day-one" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+                <!-- Left Column (5 Cols): 1920s Industrial Gazette Editorial Feature -->
+                <div class="lg:col-span-5 lg:ink-border-r lg:pr-10">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-[10px] px-2 py-0.5 uppercase font-bold rounded-sm">LEAD EDITORIAL COLUMN</span>
+                        <span class="font-mono-tech text-xs">BORN: 03 AUG 2008</span>
+                    </div>
+
+                    <h2 class="font-canopee text-6xl sm:text-7xl leading-[0.86] mb-6">
+                        NO EXPERIENCE?<br>
+                        <span class="text-[#B43B12]">NO PROBLEM</span> — THE POWER OF DAY ONE!
+                    </h2>
+
+                    <p class="font-editorial text-xl md:text-2xl leading-relaxed text-justify editorial-dropcap mb-5">
+                        Every legendary silicon architect — from the pioneers of Bell Labs and Fairchild Semiconductor to modern processor designers — began at the exact same coordinate: <strong>zero experience</strong>. Mayank Gurliya (born <strong>3 August 2008</strong>) makes no attempt to inflate his resume with fictional titles. He has just started his learning journey at <strong>JECRC University, Jaipur</strong> after graduating from <strong>SBS Convent School</strong>, and he carries an unshakeable willingness to go far away in this field.
+                    </p>
+
+                    <p class="font-editorial text-xl md:text-2xl leading-relaxed text-justify mb-6">
+                        Why is starting from scratch in <strong>Electronics &amp; Communication Engineering (ECE)</strong> a superpower? Because a beginner's mind questions every electron, tests every breadboard jumper wire, and reads datasheets without preconceived shortcuts. Whether it is semiconductor doping, CMOS fabrication, or bare-metal microcontroller firmware, this gazette documents the climb from the very first step.
+                    </p>
+
+                    <div class="ink-border bg-[var(--paper-card)]/60 p-5 rounded-sm">
+                        <div class="font-mono-tech text-[11px] text-[#B43B12] uppercase font-bold mb-1">
+                            ★ THE JECRC STUDENT PLEDGE
+                        </div>
+                        <p class="font-editorial italic text-xl font-semibold">
+                            “I have no commercial experience today — only relentless curiosity, a soldering iron, and the determination to master semiconductors and embedded systems over the years ahead.”
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column (7 Cols): Interactive Live Oscilloscope & MOSFET Clock Simulator -->
+                <div class="lg:col-span-7">
+                    <div class="ink-border-2 bg-[var(--paper-light)] p-5 md:p-8 rounded-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 ink-border-b pb-4 mb-5">
+                            <div>
+                                <span class="font-mono-tech text-xs text-[#B43B12] uppercase font-bold">INTERACTIVE LAB INSTRUMENT #02</span>
+                                <h3 class="font-canopee text-4xl md:text-5xl mt-1">ANALOG / DIGITAL CLOCK OSCILLOSCOPE</h3>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="setWaveMode('sine')" id="wave-btn-sine" class="font-mono-tech text-xs px-3 py-1 ink-border bg-[#1C1C19] text-[#C4BCB3] rounded-sm uppercase">ANALOG CMOS</button>
+                                <button onclick="setWaveMode('square')" id="wave-btn-square" class="font-mono-tech text-xs px-3 py-1 ink-border hover:bg-[#B43B12] hover:text-[#C4BCB3] rounded-sm uppercase">DIGITAL PWM</button>
+                            </div>
+                        </div>
+
+                        <!-- Live HTML5 Canvas Oscilloscope -->
+                        <div class="relative ink-border-2 bg-[#141412] rounded-sm overflow-hidden h-64 md:h-72 mb-6" data-cursor="OSCILLOSCOPE">
+                            <canvas id="oscilloscope-canvas" class="w-full h-full block"></canvas>
+                            <div class="absolute top-3 left-3 font-mono-tech text-[11px] text-[#C4BCB3] bg-[#141412]/80 px-2 py-1 border border-[#C4BCB3]/30 rounded-sm">
+                                CH1: <span id="osc-readout-freq" class="text-[#B43B12] font-bold">2.40 GHz</span> | VDD: <span id="osc-readout-volt" class="text-[#B43B12] font-bold">1.80 V</span>
+                            </div>
+                            <div class="absolute bottom-3 right-3 font-mono-tech text-[10px] text-[#C4BCB3]/70">
+                                JECRC ECE SIGNAL ANALYZER • LIVE TRACE
+                            </div>
+                        </div>
+
+                        <!-- Interactive Sliders for Frequency, Voltage & Noise Harmonics -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 font-mono-tech text-xs">
+                            <div class="ink-border p-3.5 bg-[var(--paper-bg)] rounded-sm">
+                                <div class="flex justify-between mb-2">
+                                    <span>CLOCK FREQUENCY</span>
+                                    <span id="slider-freq-val" class="font-bold text-[#B43B12]">2.4 GHz</span>
+                                </div>
+                                <input id="osc-freq" type="range" min="1" max="8" step="0.2" value="2.4" class="w-full accent-[#B43B12] cursor-pointer" oninput="updateOscParams()">
+                            </div>
+
+                            <div class="ink-border p-3.5 bg-[var(--paper-bg)] rounded-sm">
+                                <div class="flex justify-between mb-2">
+                                    <span>CORE VOLTAGE (VDD)</span>
+                                    <span id="slider-volt-val" class="font-bold text-[#B43B12]">1.8 V</span>
+                                </div>
+                                <input id="osc-volt" type="range" min="0.6" max="3.3" step="0.1" value="1.8" class="w-full accent-[#B43B12] cursor-pointer" oninput="updateOscParams()">
+                            </div>
+
+                            <div class="ink-border p-3.5 bg-[var(--paper-bg)] rounded-sm">
+                                <div class="flex justify-between mb-2">
+                                    <span>SIGNAL HARMONICS</span>
+                                    <span id="slider-harm-val" class="font-bold text-[#B43B12]">15%</span>
+                                </div>
+                                <input id="osc-harm" type="range" min="0" max="60" step="5" value="15" class="w-full accent-[#B43B12] cursor-pointer" oninput="updateOscParams()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 5: THE 4-YEAR SILICON & EMBEDDED ROADMAP (TABBED GAZETTE) -->
+        <!-- ================================================================= -->
+        <section id="sec-roadmap" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto">
+                <div class="flex flex-wrap items-end justify-between ink-border-b pb-5 mb-8 gap-4">
+                    <div>
+                        <span class="font-mono-tech text-xs uppercase text-[#B43B12] tracking-widest">EXPEDITION BLUEPRINT // 2026 — 2030</span>
+                        <h2 class="font-canopee text-5xl sm:text-7xl mt-1">THE 4-PHASE SILICON &amp; EMBEDDED ROADMAP</h2>
+                    </div>
+                    <p class="font-editorial italic text-2xl">
+                        Select any phase tab below to inspect Mayank's structured multi-year expedition.
+                    </p>
+                </div>
+
+                <!-- Phase Selector Tabs -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+                    <button onclick="switchRoadmapPhase(0)" id="phase-tab-0" data-cursor="PHASE 01" class="ink-border-2 p-4 text-left bg-[#1C1C19] text-[#C4BCB3] transition rounded-sm">
+                        <span class="font-mono-tech text-[11px] text-[#B43B12] block font-bold">PHASE 01 // ACTIVE</span>
+                        <span class="font-canopee text-3xl md:text-4xl">FOUNDATIONS &amp; LOGIC</span>
+                    </button>
+                    <button onclick="switchRoadmapPhase(1)" id="phase-tab-1" data-cursor="PHASE 02" class="ink-border-2 p-4 text-left bg-[var(--paper-bg)] hover:bg-[var(--paper-light)] transition rounded-sm">
+                        <span class="font-mono-tech text-[11px] text-[#B43B12] block font-bold">PHASE 02 // NEXT</span>
+                        <span class="font-canopee text-3xl md:text-4xl">SILICON &amp; RTL DESIGN</span>
+                    </button>
+                    <button onclick="switchRoadmapPhase(2)" id="phase-tab-2" data-cursor="PHASE 03" class="ink-border-2 p-4 text-left bg-[var(--paper-bg)] hover:bg-[var(--paper-light)] transition rounded-sm">
+                        <span class="font-mono-tech text-[11px] text-[#B43B12] block font-bold">PHASE 03 // EMBEDDED</span>
+                        <span class="font-canopee text-3xl md:text-4xl">BARE-METAL &amp; RTOS</span>
+                    </button>
+                    <button onclick="switchRoadmapPhase(3)" id="phase-tab-3" data-cursor="PHASE 04" class="ink-border-2 p-4 text-left bg-[var(--paper-bg)] hover:bg-[var(--paper-light)] transition rounded-sm">
+                        <span class="font-mono-tech text-[11px] text-[#B43B12] block font-bold">PHASE 04 // HORIZON</span>
+                        <span class="font-canopee text-3xl md:text-4xl">TAPE-OUT &amp; SoC R&amp;D</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Roadmap Gazette Display Panel -->
+                <div id="roadmap-content-panel" class="ink-border-2 bg-[var(--paper-light)] p-6 md:p-10 rounded-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-8 space-y-4">
+                        <div class="inline-flex items-center space-x-3">
+                            <span id="rm-badge" class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-xs px-3 py-1 rounded-sm font-bold uppercase">STAGE 01: SBS CONVENT TO 1ST YEAR JECRC ECE</span>
+                        </div>
+                        <h3 id="rm-title" class="font-canopee text-5xl sm:text-6xl leading-none">
+                            BUILDING THE BEDROCK: C PROGRAMMING, BOOLEAN ALGEBRA &amp; CIRCUIT THEORY
+                        </h3>
+                        <p id="rm-desc" class="font-editorial text-2xl leading-relaxed">
+                            Transitioning from Higher Secondary Physics &amp; Mathematics at SBS Convent School into first-year B.Tech ECE at JECRC University, Jaipur. Focusing on KVL/KCL network analysis, PN-junction diodes, BJT/MOSFET biasing, pointers and bitwise operations in C, and combinational logic gate synthesis.
+                        </p>
+                        <div id="rm-deliverables" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 font-mono-tech text-xs">
+                            <div class="ink-border p-3 bg-[var(--paper-bg)]">✓ C Pointers &amp; Bitwise Ops</div>
+                            <div class="ink-border p-3 bg-[var(--paper-bg)]">✓ K-Maps &amp; Logic Gates</div>
+                            <div class="ink-border p-3 bg-[var(--paper-bg)]">✓ Analog Diode/MOSFET Labs</div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 ink-border bg-[var(--paper-bg)] p-6 rounded-sm text-center">
+                        <span class="font-mono-tech text-xs uppercase text-[#B43B12] block mb-1">TARGET MILESTONE</span>
+                        <div id="rm-year" class="font-canopee text-7xl my-2">YEAR 01</div>
+                        <p id="rm-quote" class="font-editorial italic text-xl">
+                            “Master the fundamentals so thoroughly that complex chip architectures become intuitive.”
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 6: "CURIOSITY CABINET & LAB BENCH" (6 SPEC CLIPPINGS)     -->
+        <!-- ================================================================= -->
+        <section id="sec-cabinet" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto">
+                <div class="flex flex-wrap items-end justify-between ink-border-b pb-5 mb-10 gap-4">
+                    <div>
+                        <span class="font-mono-tech text-xs uppercase text-[#B43B12] tracking-widest">SPECIMEN ARCHIVE // TOOLS &amp; SUBJECTS IN PROGRESS</span>
+                        <h2 class="font-canopee text-5xl sm:text-7xl mt-1">CURIOSITY CABINET &amp; LAB BENCH</h2>
+                    </div>
+                    <p class="font-mono-tech text-xs uppercase">CLICK ANY CLIPPING TO EXPAND LAB NOTES</p>
+                </div>
+
+                <!-- 6 Newspaper Clippings Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Clipping 1 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 01" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #01</span>
+                                <span>DIGITAL LOGIC</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">KARNAUGH MAPS &amp; LOGIC GATES</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                Simplifying complex Boolean expressions into minimal NAND/NOR gate networks to reduce silicon area and propagation delay.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Practicing 4-variable K-Maps, Quine-McCluskey minimization, and building 4-bit adders on breadboards.
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>GATE LEVEL</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                    <!-- Clipping 2 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 02" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #02</span>
+                                <span>SOLID STATE</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">SEMICONDUCTOR DOPING &amp; PN JUNCTIONS</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                How pure silicon wafers are doped with Boron (P-type) and Phosphorus (N-type) to control electron and hole mobility.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Studying Fermi levels, depletion region width, and threshold voltage equations at JECRC University.
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>WAFER PHYSICS</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                    <!-- Clipping 3 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 03" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #03</span>
+                                <span>HDL SYNTHESIS</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">VERILOG &amp; EDA SIMULATION</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                Describing digital hardware behavior and structure in code, running testbenches, and inspecting nanosecond signal waveforms.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Exploring Icarus Verilog, GTKWave, and preparing for FPGA synthesis workflows.
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>RTL CODE</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                    <!-- Clipping 4 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 04" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #04</span>
+                                <span>MICROCONTROLLERS</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">EMBEDDED C &amp; REGISTER PROGRAMMING</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                Moving beyond high-level libraries to manipulate GPIO registers, timers, and hardware interrupts directly in C.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Learning bitwise masking (`|=`, `&= ~`), volatile pointers, and bare-metal startup code.
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>FIRMWARE</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                    <!-- Clipping 5 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 05" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #05</span>
+                                <span>PROTOCOLS</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">UART, SPI &amp; I2C SERIAL BUSES</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                How microcontrollers talk to sensors, external flash memory, and displays using clock and data lines.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Analyzing start/stop bits, ACK/NACK frames, and clock polarity/phase (CPOL/CPHA).
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>BUS TIMING</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                    <!-- Clipping 6 -->
+                    <article class="ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm hover:-translate-y-1.5 transition duration-300 cursor-pointer flex flex-col justify-between" data-cursor="SPEC 06" onclick="toggleSpecNote(this)">
+                        <div>
+                            <div class="flex justify-between items-center font-mono-tech text-xs ink-border-b pb-2 mb-4">
+                                <span class="text-[#B43B12] font-bold">SPECIMEN #06</span>
+                                <span>ARCHITECTURE</span>
+                            </div>
+                            <h3 class="font-canopee text-4xl mb-2">RISC-V &amp; MICROPROCESSOR PIPELINES</h3>
+                            <p class="font-editorial text-xl leading-relaxed">
+                                Understanding Fetch, Decode, Execute, Memory, and Writeback stages inside modern open-standard instruction sets.
+                            </p>
+                            <div class="spec-extra hidden mt-4 pt-3 ink-border-t font-mono-tech text-xs text-[#B43B12]">
+                                &gt; LAB NOTE: Long-term ambition to design and synthesize a custom RISC-V core from scratch.
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-3 ink-border-t flex justify-between items-center font-mono-tech text-[11px]">
+                            <span>ISA DESIGN</span>
+                            <span class="underline">CLICK TO EXPAND +</span>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 7: ACADEMIC & BIOGRAPHICAL DOSSIER (INK-SWEEP ROWS)       -->
+        <!-- ================================================================= -->
+        <section id="sec-dossier" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto">
+                <div class="flex flex-wrap items-end justify-between pb-5 mb-6 gap-4">
+                    <div>
+                        <span class="font-mono-tech text-xs uppercase text-[#B43B12] tracking-widest">VERIFIED ARCHIVAL LEDGER</span>
+                        <h2 class="font-canopee text-5xl sm:text-7xl mt-1">COMPLETE PERSONAL &amp; ACADEMIC DOSSIER</h2>
+                    </div>
+                    <span class="font-mono-tech text-xs uppercase">HOVER ROWS FOR INK-PRESS HIGHLIGHT</span>
+                </div>
+
+                <div class="ink-border-t">
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">01 // FULL NAME</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">MAYANK GURLIYA</span>
+                        <span class="md:col-span-5 font-editorial text-xl">Aspiring Semiconductor, VLSI &amp; Embedded Systems Engineer</span>
+                    </div>
+
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">02 // BIRTH DATE</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">3 AUGUST 2008</span>
+                        <span class="md:col-span-5 font-editorial text-xl">Age 18 • Gen-Z Hardware Enthusiast born in the Silicon Era</span>
+                    </div>
+
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">03 // SCHOOLING</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">SBS CONVENT SCHOOL</span>
+                        <span class="md:col-span-5 font-editorial text-xl">Higher Secondary Qualification (Class XII — Physics, Chemistry, Mathematics)</span>
+                    </div>
+
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">04 // UNIVERSITY</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">JECRC UNIVERSITY, JAIPUR</span>
+                        <span class="md:col-span-5 font-editorial text-xl">Currently enrolled in Jaipur, Rajasthan — Active ECE Undergraduate</span>
+                    </div>
+
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">05 // SPECIALIZATION</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">ECE — SEMICONDUCTORS &amp; CHIP DESIGN</span>
+                        <span class="md:col-span-5 font-editorial text-xl">Focused on VLSI Architecture, Integrated Circuits &amp; Embedded Systems</span>
+                    </div>
+
+                    <div class="ink-sweep-row ink-border-b py-6 px-4 grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <span class="md:col-span-2 font-mono-tech text-xs text-[#B43B12] font-bold">06 // EXPERIENCE</span>
+                        <span class="md:col-span-5 font-canopee text-4xl sm:text-5xl">DAY 01 — TABULA RASA</span>
+                        <span class="md:col-span-5 font-editorial text-xl">No prior industry experience; just started learning and willing to go far away in this field</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 8: INTERACTIVE TELEGRAPH DISPATCH & LIVE RECEIPT PRINTER  -->
+        <!-- ================================================================= -->
+        <section id="sec-telegraph" class="ink-border-b px-4 md:px-8 py-14 md:py-20 gs-reveal-section">
+            <div class="max-w-[1650px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+                <!-- Left 6 Cols: Send a Telegraph Form -->
+                <div class="lg:col-span-6">
+                    <span class="bg-[#B43B12] text-[#C4BCB3] font-mono-tech text-xs px-2.5 py-1 uppercase rounded-sm font-bold">TELEGRAPH WIRE OFFICE</span>
+                    <h2 class="font-canopee text-5xl sm:text-7xl mt-3 mb-4">SEND A DISPATCH TO MAYANK'S LAB</h2>
+                    <p class="font-editorial text-2xl leading-relaxed mb-6">
+                        Whether you are a professor, fellow ECE student at <strong>JECRC University</strong>, silicon engineer, or mentor — transmit a message below and watch the vintage telegraph printer stamp your receipt on the right.
+                    </p>
+
+                    <form onsubmit="printTelegraphReceipt(event)" class="space-y-4 ink-border-2 bg-[var(--paper-light)] p-6 rounded-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-mono-tech text-xs uppercase mb-1">Sender Name / Callsign *</label>
+                                <input id="tg-sender" type="text" required placeholder="e.g., Dr. Verma / VLSI Club" class="w-full bg-[var(--paper-bg)] ink-border px-3.5 py-2.5 font-mono-tech text-sm focus:outline-none focus:border-[#B43B12]">
+                            </div>
+                            <div>
+                                <label class="block font-mono-tech text-xs uppercase mb-1">Subject Channel *</label>
+                                <select id="tg-subject" class="w-full bg-[var(--paper-bg)] ink-border px-3.5 py-2.5 font-mono-tech text-sm focus:outline-none focus:border-[#B43B12]">
+                                    <option>Semiconductors &amp; VLSI Mentorship</option>
+                                    <option>Embedded Systems &amp; Firmware Collab</option>
+                                    <option>JECRC University Campus Project</option>
+                                    <option>Encouragement for Day-01 Journey</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-mono-tech text-xs uppercase mb-1">Telegraph Message *</label>
+                            <textarea id="tg-message" rows="3" required placeholder="Write your message or advice for Mayank Gurliya..." class="w-full bg-[var(--paper-bg)] ink-border px-3.5 py-2.5 font-editorial text-xl focus:outline-none focus:border-[#B43B12]"></textarea>
+                        </div>
+
+                        <button type="submit" data-cursor="STAMP WIRE" class="w-full bg-[#1C1C19] text-[#C4BCB3] hover:bg-[#B43B12] font-canopee text-3xl tracking-wider py-3 transition rounded-sm">
+                            STAMP &amp; TRANSMIT TELEGRAPH →
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right 6 Cols: Live Printed Telegraph Receipt Tape -->
+                <div class="lg:col-span-6">
+                    <div class="ink-border-2 bg-[var(--paper-card)] p-6 md:p-8 rounded-sm relative">
+                        <div class="flex items-center justify-between ink-border-b pb-3 mb-5 font-mono-tech text-xs">
+                            <span>TELEGRAPH PRINTER OUTPUT // JAIPUR STATION</span>
+                            <span class="text-[#B43B12] font-bold">● ONLINE</span>
+                        </div>
+
+                        <!-- Receipt Paper Sheet -->
+                        <div id="telegraph-receipt-box" class="bg-[var(--paper-bg)] ink-border-2 p-6 rounded-sm shadow-lg font-mono-tech text-xs space-y-3">
+                            <div class="flex justify-between border-b border-dashed border-current pb-2">
+                                <span>RECEIPT NO: #MG-2008-001</span>
+                                <span id="receipt-timestamp">STAMPED: READY</span>
+                            </div>
+                            <div class="text-center py-2 border-b border-dashed border-current">
+                                <p class="font-canopee text-3xl tracking-wide">OFFICIAL LAB TELEGRAPH</p>
+                                <p class="text-[10px] opacity-80">TO: MAYANK GURLIYA • JECRC UNIVERSITY JAIPUR (ECE)</p>
+                            </div>
+                            <div class="space-y-1.5 py-2">
+                                <p><strong>FROM:</strong> <span id="receipt-from">SILICON ARCHIVE SYSTEM</span></p>
+                                <p><strong>CHANNEL:</strong> <span id="receipt-channel">INITIALIZATION LOG</span></p>
+                                <p><strong>CANDIDATE BIO:</strong> BORN 03 AUG 2008 • SBS CONVENT SCHOOL ALUMNUS</p>
+                            </div>
+                            <div class="p-3 bg-[var(--paper-light)] ink-border font-editorial text-xl italic" id="receipt-body">
+                                "Welcome to Mayank Gurliya's Paper Portfolio. Submit the form on the left to print a custom telegraph dispatch directly onto this archival tape."
+                            </div>
+                            <div class="pt-2 border-t border-dashed border-current flex justify-between text-[10px]">
+                                <span>STATUS: VERIFIED DAY-01 LEARNER</span>
+                                <span class="text-[#B43B12] font-bold">STAMPED IN JAIPUR ✓</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 9: DUAL INFINITE VELOCITY MARQUEE BANNERS                 -->
+        <!-- ================================================================= -->
+        <section class="ink-border-b bg-[var(--paper-light)] overflow-hidden select-none">
+            <!-- Top Forward Marquee -->
+            <div class="py-4 ink-border-b">
+                <div class="marquee-forward flex items-center">
+                    <div class="flex items-center space-x-6 pr-6">
+                        <span class="font-canopee text-5xl md:text-6xl">LET'S TALK ABOUT SILICON &amp; EMBEDDED SYSTEMS</span>
+                        <span class="bg-[#B43B12] text-[#C4BCB3] font-canopee text-4xl md:text-5xl px-4 py-0.5 rounded-sm">MAYANK GURLIYA</span>
+                        <span class="font-canopee text-5xl md:text-6xl">✦ BORN 3 AUGUST 2008 ✦</span>
+                        <span class="bg-[#1C1C19] text-[#C4BCB3] font-canopee text-4xl md:text-5xl px-4 py-0.5 rounded-sm">SBS CONVENT SCHOOL</span>
+                        <span class="font-canopee text-5xl md:text-6xl">✦ JECRC UNIVERSITY JAIPUR (B.TECH ECE) ✦</span>
+                    </div>
+                    <div class="flex items-center space-x-6 pr-6" aria-hidden="true">
+                        <span class="font-canopee text-5xl md:text-6xl">LET'S TALK ABOUT SILICON &amp; EMBEDDED SYSTEMS</span>
+                        <span class="bg-[#B43B12] text-[#C4BCB3] font-canopee text-4xl md:text-5xl px-4 py-0.5 rounded-sm">MAYANK GURLIYA</span>
+                        <span class="font-canopee text-5xl md:text-6xl">✦ BORN 3 AUGUST 2008 ✦</span>
+                        <span class="bg-[#1C1C19] text-[#C4BCB3] font-canopee text-4xl md:text-5xl px-4 py-0.5 rounded-sm">SBS CONVENT SCHOOL</span>
+                        <span class="font-canopee text-5xl md:text-6xl">✦ JECRC UNIVERSITY JAIPUR (B.TECH ECE) ✦</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Reverse Marquee -->
+            <div class="py-3 bg-[#1C1C19] text-[#C4BCB3]">
+                <div class="marquee-reverse flex items-center font-mono-tech text-xs md:text-sm uppercase tracking-widest">
+                    <div class="flex items-center space-x-8 pr-8">
+                        <span>★ ZERO PRIOR EXPERIENCE — WILLING TO GO FAR AWAY IN SEMICONDUCTORS &amp; CHIP DESIGN</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                        <span>VLSI ARCHITECTURE • VERILOG HDL • CMOS TRANSISTORS • BARE-METAL EMBEDDED C</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                        <span>EDITION 2026 — JAIPUR, RAJASTHAN</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                    </div>
+                    <div class="flex items-center space-x-8 pr-8" aria-hidden="true">
+                        <span>★ ZERO PRIOR EXPERIENCE — WILLING TO GO FAR AWAY IN SEMICONDUCTORS &amp; CHIP DESIGN</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                        <span>VLSI ARCHITECTURE • VERILOG HDL • CMOS TRANSISTORS • BARE-METAL EMBEDDED C</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                        <span>EDITION 2026 — JAIPUR, RAJASTHAN</span>
+                        <span class="text-[#B43B12] font-bold">●</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 10: COLOPHON & ARCHIVAL FOOTER                            -->
+        <!-- ================================================================= -->
+        <footer class="px-4 md:px-8 py-10">
+            <div class="max-w-[1650px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6 font-mono-tech text-xs">
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="font-canopee text-3xl">MAYANK GURLIYA©</span>
+                    <span>•</span>
+                    <span>DOB: 03.08.2008</span>
+                    <span>•</span>
+                    <span>SBS CONVENT SCHOOL</span>
+                    <span>•</span>
+                    <span>JECRC UNIVERSITY JAIPUR</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-5">
+                    <button onclick="replayFullPressAndUnfold()" class="underline hover:text-[#B43B12] uppercase font-bold">Replay Preloader &amp; 360° Unfold</button>
+                    <span>•</span>
+                    <button onclick="toggleBlueprintMode()" class="underline hover:text-[#B43B12] uppercase">Toggle Blueprint Ink</button>
+                    <span>•</span>
+                    <a href="#paper-stage" class="underline hover:text-[#B43B12] uppercase">Top of Gazette ↑</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT: PRELOADER, GSAP 360° UNFOLD, OSCILLOSCOPE & INTERACTIVITY -->
+    <!-- ===================================================================== -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        let isUnfolding = false;
+        let preloaderInterval = null;
+
+        const telegraphMessages = [
+            "> INKING THE SILICON GAZETTE...",
+            "> ETCHING 3 AUGUST 2008 ARCHIVES...",
+            "> VERIFYING SBS CONVENT SCHOOL (10+2) RECORD...",
+            "> LOADING JECRC UNIVERSITY JAIPUR ECE DOSSIER...",
+            "> INITIALIZING SEMICONDUCTOR & EMBEDDED LAB BENCH...",
+            "> READY FOR 360° PAPER UNFOLD SEQUENCE!"
+        ];
+
+        /**
+         * Runs the Vintage Lithographic Printing Press Preloader from 00% to 100%,
+         * then automatically triggers the Signature Miranda 360° Paper Unfold.
+         */
+        function startPreloaderSequence() {
+            const preloader = document.getElementById('preloader-screen');
+            const percentEl = document.getElementById('preloader-percent');
+            const barEl = document.getElementById('preloader-bar');
+            const tickerEl = document.getElementById('preloader-ticker');
+
+            preloader.classList.remove('hidden');
+            preloader.style.opacity = '1';
+            gsap.set(preloader, { y: "0%" });
+
+            let progress = 0;
+            if (preloaderInterval) clearInterval(preloaderInterval);
+
+            preloaderInterval = setInterval(() => {
+                progress += Math.floor(Math.random() * 5) + 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(preloaderInterval);
+                    setTimeout(() => {
+                        transitionFromPreloaderToUnfold();
+                    }, 280);
+                }
+
+                percentEl.textContent = String(progress).padStart(2, '0') + '%';
+                barEl.style.width = progress + '%';
+
+                const msgIndex = Math.min(
+                    Math.floor((progress / 100) * telegraphMessages.length),
+                    telegraphMessages.length - 1
+                );
+                tickerEl.textContent = telegraphMessages[msgIndex];
+            }, 42);
+        }
+
+        function skipPreloaderNow() {
+            if (preloaderInterval) clearInterval(preloaderInterval);
+            transitionFromPreloaderToUnfold();
+        }
+
+        function transitionFromPreloaderToUnfold() {
+            const preloader = document.getElementById('preloader-screen');
+            gsap.to(preloader, {
+                y: "-100%",
+                duration: 0.75,
+                ease: "expo.inOut",
+                onComplete: () => {
+                    preloader.classList.add('hidden');
+                }
+            });
+            playMiranda360Unfold();
+        }
+
+        /**
+         * Signature Niccolò Miranda 360° Paper Unfold Sequence
+         */
+        function playMiranda360Unfold() {
+            if (isUnfolding) return;
+            isUnfolding = true;
+
+            const stage = document.getElementById('paper-stage');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    gsap.set(stage, { clearProps: "transform,boxShadow,borderRadius" });
+                    isUnfolding = false;
+                    ScrollTrigger.refresh();
+                }
+            });
+
+            tl.set(stage, {
+                scale: 0.34,
+                y: "82vh",
+                rotation: 0,
+                borderRadius: "18px",
+                boxShadow: "0 40px 120px rgba(0,0,0,0.9)"
+            })
+            .to(stage, {
+                y: "0vh",
+                duration: 0.9,
+                ease: "power3.inOut"
+            })
+            .to(stage, {
+                rotation: 360,
+                scale: 1,
+                borderRadius: "0px",
+                duration: 1.25,
+                ease: "expo.inOut"
+            }, "+=0.06");
+        }
+
+        function replayFullPressAndUnfold() {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            startPreloaderSequence();
+        }
+
+        // Custom Follower Cursor Logic
+        function initCustomCursor() {
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+            const label = document.getElementById('cursor-label');
+
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.05 });
+                gsap.to(ring, { x: e.clientX, y: e.clientY, duration: 0.22, ease: "power2.out" });
+            });
+
+            document.querySelectorAll('[data-cursor]').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    label.textContent = el.getAttribute('data-cursor');
+                    ring.classList.add('cursor-expanded');
+                });
+                el.addEventListener('mouseleave', () => {
+                    ring.classList.remove('cursor-expanded');
+                });
+            });
+        }
+
+        // Interactive Lab Bench DIP Switches (Section 1 Right Column)
+        const labSwitchStates = [1, 1, 1];
+        function toggleLabSwitch(idx) {
+            labSwitchStates[idx] = labSwitchStates[idx] === 1 ? 0 : 1;
+            const led = document.getElementById(`led-${idx}`);
+            const label = document.getElementById(`sw-label-${idx}`);
+
+            if (labSwitchStates[idx] === 1) {
+                led.className = "w-3 h-3 rounded-full bg-[#B43B12] shadow-[0_0_8px_#B43B12] transition";
+                label.className = "bg-[#B43B12] text-[#C4BCB3] px-2 py-0.5 text-[10px] rounded-sm";
+                label.textContent = "ACTIVE [1]";
+            } else {
+                led.className = "w-3 h-3 rounded-full bg-[#1C1C19]/30 transition";
+                label.className = "bg-[#1C1C19] text-[#C4BCB3] px-2 py-0.5 text-[10px] rounded-sm";
+                label.textContent = "STANDBY [0]";
+            }
+
+            const binStr = `0b${labSwitchStates.join('')}`;
+            const activeCount = labSwitchStates.reduce((a, b) => a + b, 0);
+            document.getElementById('lab-binary-readout').textContent =
+                `BUS STATE: ${binStr} (${activeCount}/3 RAILS ACTIVE)`;
+        }
+
+        // Pin/Unpin Card in 5-Card Miranda Deck
+        function pinCard(cardEl) {
+            const alreadyPinned = cardEl.classList.contains('card-pinned');
+            document.querySelectorAll('.miranda-card').forEach(c => c.classList.remove('card-pinned'));
+            if (!alreadyPinned) cardEl.classList.add('card-pinned');
+        }
+
+        // Section 3: Interactive 6-Sector Silicon Die Inspector Data
+        const dieSectors = [
+            {
+                code: "SECTOR_01 // ALU_LOGIC_CORE",
+                badge: "ACTIVE STUDY",
+                title: "ALU & COMBINATIONAL LOGIC GATES",
+                desc: "Starting from truth tables, De Morgan's theorems, and Karnaugh maps to designing half-adders, full-adders, multiplexers, and multi-bit Arithmetic Logic Units (ALUs).",
+                metric: "75% (BUILDING FAST)",
+                width: "75%"
+            },
+            {
+                code: "SECTOR_02 // CMOS_SRAM_ARRAY",
+                badge: "SEMICONDUCTORS",
+                title: "MOSFET PHYSICS & 6T SRAM CELLS",
+                desc: "Understanding how NMOS and PMOS transistors form complementary logic inverters, latch states, and static random-access memory arrays on a silicon wafer.",
+                metric: "60% (CORE ECE)",
+                width: "60%"
+            },
+            {
+                code: "SECTOR_03 // SBS_CONVENT_ROM",
+                badge: "COMPLETED 10+2",
+                title: "SBS CONVENT SCHOOL FOUNDATION",
+                desc: "Higher Secondary education from SBS Convent School where Mayank built his foundational command over Physics, Electromagnetism, Calculus, and Chemistry.",
+                metric: "100% (GRADUATED)",
+                width: "100%"
+            },
+            {
+                code: "SECTOR_04 // EMBEDDED_BUS_IO",
+                badge: "HANDS-ON LAB",
+                title: "EMBEDDED INTERFACES (UART / SPI / I2C)",
+                desc: "Programming microcontrollers in bare-metal C to communicate with external sensors, displays, and actuators using synchronous and asynchronous serial buses.",
+                metric: "65% (EXPERIMENTING)",
+                width: "65%"
+            },
+            {
+                code: "SECTOR_05 // CLOCK_TREE_RTL",
+                badge: "CHIP DESIGN",
+                title: "VERILOG HDL & CLOCK SYNTHESIS",
+                desc: "Writing synthesizable Register-Transfer Level (RTL) hardware descriptions in Verilog and verifying synchronous flip-flop timing diagrams.",
+                metric: "50% (RAMPING UP)",
+                width: "50%"
+            },
+            {
+                code: "SECTOR_06 // JECRC_ECE_CORE",
+                badge: "CURRENT ALMA MATER",
+                title: "JECRC UNIVERSITY JAIPUR (B.TECH ECE)",
+                desc: "Currently pursuing Electronics & Communication Engineering in Jaipur — combining university laboratories with self-driven study in semiconductors and chip design.",
+                metric: "DAY 01 TO INFINITY",
+                width: "88%"
+            }
+        ];
+
+        function selectDieSector(index, svgEl) {
+            const data = dieSectors[index];
+            if (!data) return;
+
+            document.querySelectorAll('.die-sector').forEach(el => {
+                el.classList.remove('active-sector');
+                el.setAttribute('fill', 'currentColor');
+                el.setAttribute('fill-opacity', '0.08');
+                el.setAttribute('stroke', 'currentColor');
+                el.setAttribute('stroke-width', '1.5');
+            });
+
+            if (svgEl) {
+                svgEl.classList.add('active-sector');
+            }
+
+            document.getElementById('sector-code').textContent = data.code;
+            document.getElementById('sector-badge').textContent = data.badge;
+            document.getElementById('sector-title').textContent = data.title;
+            document.getElementById('sector-desc').textContent = data.desc;
+            document.getElementById('sector-metric-1').textContent = data.metric;
+            document.getElementById('sector-bar-1').style.width = data.width;
+        }
+
+        // Section 4: Live Interactive Oscilloscope Simulator
+        let oscWaveMode = 'sine';
+        let oscFreq = 2.4;
+        let oscVolt = 1.8;
+        let oscHarm = 15;
+        let oscPhase = 0;
+
+        function setWaveMode(mode) {
+            oscWaveMode = mode;
+            const sineBtn = document.getElementById('wave-btn-sine');
+            const sqBtn = document.getElementById('wave-btn-square');
+            if (mode === 'sine') {
+                sineBtn.className = "font-mono-tech text-xs px-3 py-1 ink-border bg-[#1C1C19] text-[#C4BCB3] rounded-sm uppercase";
+                sqBtn.className = "font-mono-tech text-xs px-3 py-1 ink-border hover:bg-[#B43B12] hover:text-[#C4BCB3] rounded-sm uppercase";
+            } else {
+                sqBtn.className = "font-mono-tech text-xs px-3 py-1 ink-border bg-[#1C1C19] text-[#C4BCB3] rounded-sm uppercase";
+                sineBtn.className = "font-mono-tech text-xs px-3 py-1 ink-border hover:bg-[#B43B12] hover:text-[#C4BCB3] rounded-sm uppercase";
+            }
+        }
+
+        function updateOscParams() {
+            oscFreq = parseFloat(document.getElementById('osc-freq').value);
+            oscVolt = parseFloat(document.getElementById('osc-volt').value);
+            oscHarm = parseFloat(document.getElementById('osc-harm').value);
+
+            document.getElementById('slider-freq-val').textContent = oscFreq.toFixed(1) + ' GHz';
+            document.getElementById('slider-volt-val').textContent = oscVolt.toFixed(1) + ' V';
+            document.getElementById('slider-harm-val').textContent = oscHarm + '%';
+
+            document.getElementById('osc-readout-freq').textContent = oscFreq.toFixed(2) + ' GHz';
+            document.getElementById('osc-readout-volt').textContent = oscVolt.toFixed(2) + ' V';
+        }
+
+        function initOscilloscope() {
+            const canvas = document.getElementById('oscilloscope-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            function renderLoop() {
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+
+                // Draw Subtle Oscilloscope Grid
+                ctx.strokeStyle = 'rgba(196, 188, 179, 0.14)';
+                ctx.lineWidth = 1;
+                const step = 36;
+                for (let x = 0; x < w; x += step) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+                }
+                for (let y = 0; y < h; y += step) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                }
+
+                // Draw Waveform
+                ctx.strokeStyle = '#B43B12';
+                ctx.lineWidth = 2.8;
+                ctx.beginPath();
+
+                const amp = (oscVolt / 3.3) * (h * 0.36);
+                const centerY = h / 2;
+
+                for (let x = 0; x < w; x++) {
+                    const t = (x / w) * Math.PI * 2 * oscFreq + oscPhase;
+                    let yVal = 0;
+                    if (oscWaveMode === 'sine') {
+                        yVal = Math.sin(t) + (oscHarm / 100) * Math.sin(t * 3);
+                    } else {
+                        yVal = (Math.sin(t) >= 0 ? 1 : -1) + (oscHarm / 100) * Math.sin(t * 5);
+                    }
+                    const y = centerY - yVal * amp;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                oscPhase += 0.045 * (oscFreq / 2);
+                requestAnimationFrame(renderLoop);
+            }
+            renderLoop();
+        }
+
+        // Section 5: 4-Phase Roadmap Tab Switcher
+        const roadmapPhases = [
+            {
+                badge: "STAGE 01: SBS CONVENT TO 1ST YEAR JECRC ECE",
+                title: "BUILDING THE BEDROCK: C PROGRAMMING, BOOLEAN ALGEBRA & CIRCUIT THEORY",
+                desc: "Transitioning from Higher Secondary Physics & Mathematics at SBS Convent School into first-year B.Tech ECE at JECRC University, Jaipur. Focusing on KVL/KCL network analysis, PN-junction diodes, BJT/MOSFET biasing, pointers and bitwise operations in C, and combinational logic gate synthesis.",
+                items: ["✓ C Pointers & Bitwise Ops", "✓ K-Maps & Logic Gates", "✓ Analog Diode/MOSFET Labs"],
+                year: "YEAR 01",
+                quote: "“Master the fundamentals so thoroughly that complex chip architectures become intuitive.”"
+            },
+            {
+                badge: "STAGE 02: DIGITAL VLSI & HARDWARE DESCRIPTION LANGUAGES",
+                title: "SILICON & RTL DESIGN: VERILOG, CMOS LAYOUT & FPGA PROTOTYPING",
+                desc: "Moving from discrete logic gates to Register-Transfer Level (RTL) design. Writing synthesizable Verilog/SystemVerilog, simulating finite state machines (FSMs), studying CMOS standard-cell delay, and mapping digital designs onto FPGA boards.",
+                items: ["✓ Verilog / SystemVerilog RTL", "✓ Static Timing & CMOS", "✓ FPGA Synthesis & Testbenches"],
+                year: "YEAR 02",
+                quote: "“Code that doesn't just run on a CPU — code that physically becomes the CPU.”"
+            },
+            {
+                badge: "STAGE 03: BARE-METAL MICROCONTROLLERS & RTOS ARCHITECTURE",
+                title: "BARE-METAL EMBEDDED SYSTEMS: ARM CORTEX, PCB DESIGN & PROTOCOLS",
+                desc: "Bridging silicon with real-world hardware systems. Writing register-level drivers for microcontrollers, designing custom multi-layer PCBs, mastering UART/SPI/I2C/CAN buses, and building deterministic firmware with Real-Time Operating Systems.",
+                items: ["✓ Bare-Metal ARM / RISC-V", "✓ Custom KiCad PCB Layout", "✓ RTOS Task Scheduling"],
+                year: "YEAR 03",
+                quote: "“Every byte of memory and every microamp of power matters at the embedded edge.”"
+            },
+            {
+                badge: "STAGE 04: OPEN-SOURCE ASIC TAPEOUT & GLOBAL SEMICONDUCTOR R&D",
+                title: "THE LONG HORIZON: CUSTOM SoC ARCHITECTURE & SILICON TAPEOUT",
+                desc: "Taking a custom processor or hardware accelerator all the way from RTL to GDSII layout using OpenLane and SkyWater PDKs. Fulfilling the Day-01 promise to go far away in the semiconductor and chip design industry.",
+                items: ["✓ RTL-to-GDSII ASIC Flow", "✓ Custom RISC-V SoC Core", "✓ Industry Silicon R&D"],
+                year: "YEAR 04+",
+                quote: "“Started with zero experience at JECRC Jaipur; aiming for nanometer silicon horizons.”"
+            }
+        ];
+
+        function switchRoadmapPhase(idx) {
+            const data = roadmapPhases[idx];
+            if (!data) return;
+
+            for (let i = 0; i < 4; i++) {
+                const tab = document.getElementById(`phase-tab-${i}`);
+                if (i === idx) {
+                    tab.className = "ink-border-2 p-4 text-left bg-[#1C1C19] text-[#C4BCB3] transition rounded-sm";
+                } else {
+                    tab.className = "ink-border-2 p-4 text-left bg-[var(--paper-bg)] hover:bg-[var(--paper-light)] transition rounded-sm";
+                }
+            }
+
+            const panel = document.getElementById('roadmap-content-panel');
+            gsap.fromTo(panel, { opacity: 0.3, y: 8 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" });
+
+            document.getElementById('rm-badge').textContent = data.badge;
+            document.getElementById('rm-title').textContent = data.title;
+            document.getElementById('rm-desc').textContent = data.desc;
+            document.getElementById('rm-year').textContent = data.year;
+            document.getElementById('rm-quote').textContent = data.quote;
+
+            const delivContainer = document.getElementById('rm-deliverables');
+            delivContainer.innerHTML = data.items
+                .map(item => `<div class="ink-border p-3 bg-[var(--paper-bg)]">${item}</div>`)
+                .join('');
+        }
+
+        // Section 6: Curiosity Cabinet Expandable Spec Notes
+        function toggleSpecNote(cardEl) {
+            const extra = cardEl.querySelector('.spec-extra');
+            if (extra) extra.classList.toggle('hidden');
+        }
+
+        // Section 8: Live Telegraph Receipt Printer
+        function printTelegraphReceipt(e) {
+            e.preventDefault();
+            const sender = document.getElementById('tg-sender').value.trim();
+            const subject = document.getElementById('tg-subject').value;
+            const message = document.getElementById('tg-message').value.trim();
+
+            const receiptBox = document.getElementById('telegraph-receipt-box');
+            receiptBox.classList.remove('receipt-printed');
+            void receiptBox.offsetWidth; // Reflow to re-trigger animation
+            receiptBox.classList.add('receipt-printed');
+
+            const now = new Date();
+            document.getElementById('receipt-timestamp').textContent =
+                'STAMPED: ' + now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }).toUpperCase();
+            document.getElementById('receipt-from').textContent = sender.toUpperCase();
+            document.getElementById('receipt-channel').textContent = subject.toUpperCase();
+            document.getElementById('receipt-body').textContent = `"${message}"`;
+
+            e.target.reset();
+        }
+
+        // Header Utility Controls: Grain Intensity & Lithograph Blueprint Mode
+        const grainLevels = [
+            { label: 'LOW', val: '0.16' },
+            { label: 'MED', val: '0.35' },
+            { label: 'HIGH', val: '0.58' }
+        ];
+        let currentGrainIdx = 1;
+
+        function cycleGrainIntensity() {
+            currentGrainIdx = (currentGrainIdx + 1) % grainLevels.length;
+            document.documentElement.style.setProperty('--grain-opacity', grainLevels[currentGrainIdx].val);
+            document.getElementById('grain-status-label').textContent = grainLevels[currentGrainIdx].label;
+        }
+
+        function toggleBlueprintMode() {
+            document.body.classList.toggle('blueprint-mode');
+            const isBp = document.body.classList.contains('blueprint-mode');
+            document.getElementById('theme-mode-label').textContent =
+                isBp ? '☀ NEWSPRINT MODE' : '◐ BLUEPRINT MODE';
+        }
+
+        // Fullscreen Navigation Menu Curtain
+        function toggleMenu(show) {
+            const curtain = document.getElementById('menu-curtain');
+            if (show) {
+                curtain.classList.remove('hidden');
+                curtain.classList.add('flex');
+                gsap.fromTo(curtain, { y: "-100%" }, { y: "0%", duration: 0.55, ease: "expo.out" });
+            } else {
+                gsap.to(curtain, {
+                    y: "-100%",
+                    duration: 0.45,
+                    ease: "expo.in",
+                    onComplete: () => {
+                        curtain.classList.add('hidden');
+                        curtain.classList.remove('flex');
+                    }
+                });
+            }
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Scroll-Triggered Section Reveal Animations
+        function initScrollAnimations() {
+            gsap.utils.toArray('.gs-reveal-section').forEach(section => {
+                gsap.fromTo(section,
+                    { y: 36, opacity: 0.85 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.7,
+                        ease: "power2.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 88%",
+                            toggleActions: "play none none none"
+                        }
+                    }
+                );
+            });
+        }
+
+        // Live Jaipur Clock
+        function updateJaipurClock() {
+            const clockEl = document.getElementById('header-clock');
+            if (!clockEl) return;
+            const now = new Date();
+            clockEl.textContent = now.toLocaleTimeString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            }).toUpperCase() + ' IST';
+        }
+
+        // Escape key shortcut to skip preloader or close menu
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const preloader = document.getElementById('preloader-screen');
+                if (!preloader.classList.contains('hidden')) {
+                    skipPreloaderNow();
+                }
+                toggleMenu(false);
+            }
+        });
+
+        window.addEventListener('load', () => {
+            updateJaipurClock();
+            setInterval(updateJaipurClock, 1000);
+            initCustomCursor();
+            initOscilloscope();
+            initScrollAnimations();
+            startPreloaderSequence();
+        });
+    </script>
+</body>
+</html>
